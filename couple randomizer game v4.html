@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Couples Bet Action Randomizer</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap');
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Quicksand', sans-serif;
+      background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+      color: #4a2c2a;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* Container for scrollable content */
+    #mainContainer {
+      max-height: 100vh;
+      overflow-y: auto;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 2.8rem;
+      letter-spacing: 1.5px;
+      text-shadow: 1px 1px 4px #d27c7c;
+      user-select: none;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Flex container for top controls and gif */
+    #topControls {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+    }
+
+    /* Controls wrapper for loser select and rating */
+    #controlsWrapper {
+      flex: 1 1 300px;
+      max-width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 1.1rem;
+      display: block;
+      margin-bottom: 6px;
+      user-select: none;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px 15px;
+      font-size: 1.1rem;
+      border: 2px solid #d97474;
+      border-radius: 35px;
+      outline: none;
+      box-shadow: 0 0 10px rgba(217, 116, 116, 0.3);
+      transition: box-shadow 0.3s ease;
+      user-select: none;
+      appearance: none;
+      background: white;
+      background-image: url("data:image/svg+xml;charset=US-ASCII,%3csvg%20width%3d%2210%22%20height%3d%227%22%20viewBox%3d%220%200%2010%207%22%20fill%3d%22none%22%20xmlns%3d%22http%3a//www.w3.org/2000/svg%22%3e%3cpath%20d%3d%22M1%201L5%206L9%201%22%20stroke%3d%22%23d97474%22%20stroke-width%3d%222%22%20stroke-linecap%3d%22round%22%20stroke-linejoin%3d%22round%22/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 15px center;
+      background-size: 10px 7px;
+    }
+    select:focus {
+      box-shadow: 0 0 20px #d97474;
+    }
+
+    /* Pick Action button */
+    button#randomizeBtn {
+      display: flex;
+      margin: 25px 0 0 0;
+      background: #d97474;
+      border: none;
+      color: white;
+      font-size: 1.3rem;
+      font-weight: 700;
+      padding: 15px 40px;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 8px 15px rgba(217, 116, 116, 0.6);
+      position: relative;
+      transition: background 0.3s ease, transform 0.15s ease;
+      user-select: none;
+      align-items: center;
+      gap: 10px;
+      width: max-content;
+      align-self: center;
+    }
+    button#randomizeBtn:hover {
+      background: #f57f7f;
+      box-shadow: 0 10px 20px rgba(245, 127, 127, 0.7);
+    }
+    button#randomizeBtn:active {
+      transform: scale(0.95);
+      box-shadow: 0 5px 10px rgba(217, 116, 116, 0.9);
+    }
+
+    button .heart {
+      color: #fff0f0;
+      font-size: 1.6rem;
+      animation: heartbeat 2s infinite;
+      user-select: none;
+    }
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      25% { transform: scale(1.2); }
+      50% { transform: scale(1); }
+      75% { transform: scale(1.15); }
+    }
+
+    /* Result box styling */
+    .result {
+      margin-top: 30px;
+      background: #fff0f0cc;
+      padding: 25px 30px;
+      border-radius: 25px;
+      box-shadow: 0 8px 20px rgba(217, 116, 116, 0.4);
+      user-select: text;
+      position: relative;
+      overflow: visible;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      z-index: 10;
+    }
+    .result::before {
+      content: "❤️";
+      position: absolute;
+      font-size: 120px;
+      color: #f9a9a9aa;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: pulseHeart 4s ease-in-out infinite;
+      pointer-events: none;
+      user-select: none;
+      z-index: 0;
+    }
+    .result * {
+      position: relative;
+      z-index: 1;
+    }
+    @keyframes pulseHeart {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.25; }
+      50% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.6; }
+    }
+
+    #descriptionBox {
+      margin-top: 20px;
+      font-style: italic;
+      background: #f9d6d6;
+      border-left: 6px solid #d97474;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 1rem;
+      color: #732424;
+      line-height: 1.4;
+      user-select: text;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* GIF container floats right next to controls */
+    #gifContainer {
+      width: 600px;
+      min-width: 300px;
+      max-width: 600px;
+      height: 300px;
+      background: #fff0f0cc;
+      border-radius: 15px;
+      box-shadow: 0 8px 15px rgba(217, 116, 116, 0.4);
+      overflow: hidden;
+      position: sticky;
+      top: 20px;
+      align-self: flex-start;
+      display: none;
+      z-index: 10;
+    }
+    #gifContainer img {
+      width: 100%;
+      height: 100%;
+      object-fit: fit;
+      border-radius: 15px;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* Floating hearts background */
+    .floating-heart {
+      position: fixed;
+      bottom: -50px;
+      font-size: 20px;
+      animation-name: floatUpSlow;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+      opacity: 0.8;
+      user-select: none;
+      pointer-events: none;
+      color: #ff4d6d;
+      filter: drop-shadow(0 0 2px #e0245e);
+      will-change: transform, opacity;
+      z-index: 1;
+    }
+
+    @keyframes floatUpSlow {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.8;
+      }
+      50% {
+        opacity: 1;
+        transform: translateY(-150px) rotate(15deg);
+      }
+      100% {
+        transform: translateY(-300px) rotate(-10deg);
+        opacity: 0;
+      }
+    }
+
+    /* Floating hearts button click */
+    .heart-float {
+      position: fixed;
+      pointer-events: none;
+      animation-name: floatUp;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+      opacity: 0.8;
+      user-select: none;
+      z-index: 1000;
+      color: #ff7191;
+      filter: drop-shadow(0 0 4px #ff3a5e);
+      will-change: transform, opacity;
+    }
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 0.8;
+      }
+      50% {
+        opacity: 1;
+        transform: translateY(-30px) scale(1.2);
+      }
+      100% {
+        transform: translateY(-60px) scale(1);
+        opacity: 0;
+      }
+    }
+
+    /* Bounce animation for button */
+    @keyframes bounceEffect {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+    .bounce {
+      animation: bounceEffect 0.5s ease;
+    }
+
+//adding floating hearts
+/* Container to hold the floating hearts and sparkles */
+#floating-effects {
+  pointer-events: none; /* So clicks pass through */
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: visible;
+  z-index: 9999; /* On top of everything */
+}
+
+/* Common styles for each floating particle */
+.floating-particle {
+  position: absolute;
+  user-select: none;
+  will-change: transform, opacity;
+  animation-timing-function: linear;
+  opacity: 0.8;
+}
+
+/* Sparkle style */
+.sparkle {
+  width: 12px;
+  height: 12px;
+  background: radial-gradient(circle at center, #fff 0%, #fffa 70%, transparent 80%);
+  border-radius: 50%;
+  filter: drop-shadow(0 0 2px #fff);
+  animation-name: floatUp;
+  animation-duration: 4000ms;
+  animation-iteration-count: infinite;
+}
+
+/* Heart style */
+.heart {
+  width: 16px;
+  height: 16px;
+  background-color: #ff69b4;
+  clip-path: polygon(
+    50% 15%, 61% 5%, 75% 5%, 85% 15%, 85% 30%, 75% 45%,
+    50% 70%, 25% 45%, 15% 30%, 15% 15%, 25% 5%, 39% 5%
+  );
+  animation-name: floatUp;
+  animation-duration: 6000ms;
+  animation-iteration-count: infinite;
+  filter: drop-shadow(0 0 2px #ff69b4);
+}
+
+/* Floating up animation */
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-120px) scale(1.2);
+    opacity: 0;
+  }
+}
+
+
+  </style>
+</head>
+<body>
+
+  <div id="mainContainer">
+
+    <h1>Couples Bet Action Randomizer</h1>
+
+    <div id="topControls">
+      <div id="controlsWrapper">
+        <label for="loser">Who lost the bet?</label>
+        <select id="loser" aria-label="Select who lost the bet">
+          <option value="">-- Select --</option>
+          <option value="husbands">Husbands</option>
+          <option value="wives">Wives</option>
+        </select>
+
+        <label for="filterActions">Filter Actions by Love Level</label>
+        <select id="filterActions" aria-label="Filter actions by love level">
+          <option value="both">My love is fearless</option>
+          <option value="normal">Normal</option>
+          <option value="xda">X-Rated Only</option>
+        </select>
+
+        <button id="randomizeBtn" aria-label="Pick a random action">
+          <span class="heart">❤️</span> Pick Action <span class="heart">❤️</span>
+        </button>
+      </div>
+
+      <div id="gifContainer" aria-live="polite" aria-atomic="true">
+        <img id="gifImage" src="" alt="Silhouette couples romantic actions" />
+      </div>
+    </div>
+
+    <div class="result" id="result" style="display:none;">
+      <h2 id="doerReceiver"></h2>
+      <p><strong>Action:</strong> <span id="actionText"></span></p>
+      <p><strong>Location & Setup:</strong> <span id="locationText"></span></p>
+      <p><strong>Duration:</strong> <span id="durationText"></span> minutes</p>
+      <p><strong>Repeat for:</strong> <span id="daysText"></span> day(s)</p>
+    </div>
+
+    <div id="descriptionBox"></div>
+
+  </div>
+
+<script>
+  // Actions now have an actionType:
+  // "normal" or "id do anything for you"
+  const actions = [
+    {
+      action: "Give a slow, deep oral session",
+      location: "Under the stars — string lights above, cozy blanket",
+      minutes: 20,
+      days: 3,
+      description: "Imagine lying beneath a blanket of twinkling stars with soft, warm lights gently glowing above you. The cool night air contrasts beautifully with the intimacy of a slow, deep oral session — creating a magical blend of nature and desire.",
+      actionType: "id do anything for you"
+    },
+    {
+      action: "Perform a teasing strip tease",
+      location: "Garage with neon lights and loud music",
+      minutes: 15,
+      days: 1,
+      description: "The garage is transformed into a neon-lit playground, pulsing with loud beats. With every tease and sway, the strip tease ignites laughter and lust in equal measure, turning an everyday space into your own private dance floor.",
+      actionType: "normal"
+    },
+    {
+      action: "Deep kiss and mutual hand exploration",
+      location: "Fort of temptation — sheets and cushions with soft LED lights",
+      minutes: 10,
+      days: 2,
+      description: "A cozy fort built from pillows and sheets invites you into a world of soft LED glows and shared discovery. Deep kisses and gentle hand explorations make every second feel like a new adventure.",
+      actionType: "normal"
+    },
+    {
+      action: "Sensual body massage with oil, finish with a happy ending",
+      location: "Bathroom candle labyrinth — warm bath ready",
+      minutes: 25,
+      days: 4,
+      description: "Soft candlelight flickers across warm tiles as you guide your partner through a sensual body massage, oils melting into skin. The nearby bath awaits, promising relaxation after a deeply intimate experience.",
+      actionType: "id do anything for you"
+    },
+    {
+      action: "Slow, passionate lap dance",
+      location: "Balcony cinema — romantic film playing, blankets for warmth",
+      minutes: 15,
+      days: 2,
+      description: "Under the moonlit sky and the glow of a romantic film, your slow, passionate lap dance wraps warmth and desire into the cool night air. Cozy blankets add comfort to this sensual cinematic experience.",
+      actionType: "normal"
+    },
+    {
+      action: "Playful spanking and teasing",
+      location: "Patio with fairy lights and comfy rug",
+      minutes: 10,
+      days: 3,
+      description: "The patio twinkles with fairy lights overhead as playful spanking and teasing bring laughter and spice together. The comfy rug invites you to relax between mischievous moments.",
+      actionType: "normal"
+    },
+    {
+      action: "Whisper explicit fantasies and dirty talk",
+      location: "Hammock in greenhouse nook — surrounded by plants",
+      minutes: 15,
+      days: 5,
+      description: "Nestled in a greenhouse nook surrounded by lush plants, your whispered fantasies and dirty talk become a secret shared only between you two, intensifying the heat amid nature’s embrace.",
+      actionType: "id do anything for you"
+    },
+    {
+      action: "Slow oral job",
+      location: "Kitchen island stage — candles and chocolate",
+      minutes: 20,
+      days: 1,
+      description: "Candles flicker and chocolate melts nearby as you take center stage on the kitchen island. Slow, deliberate oral teasing paired with sweet indulgence sets the mood for an unforgettable experience.",
+      actionType: "id do anything for you"
+    },
+    {
+      action: "Roleplay with costume and dominant/sub dynamic",
+      location: "Rooftop hideaway — blankets, lanterns, night city lights",
+      minutes: 30,
+      days: 3,
+      description: "The rooftop hideaway under the city lights becomes your stage for playful dominance and submission. Wrapped in blankets and lantern glow, your roleplay weaves fantasy and reality into one thrilling night.",
+      actionType: "normal"
+    },
+    {
+      action: "Erotic body painting with flavored paint",
+      location: "Desert tent — Moroccan pillows and candlelight",
+      minutes: 20,
+      days: 4,
+      description: "In a desert tent filled with Moroccan pillows and soft candlelight, paint becomes an extension of your touch. Flavored colors glide across skin, inviting playful tasting and intimate laughter.",
+      actionType: "normal"
+    },
+
+    // Additional explicit "id do anything for you" rated actions:
+
+    {
+      action: "Tender, lingering kiss trail from neck to inner thigh",
+      location: "Cozy fireplace room with plush rugs",
+      minutes: 15,
+      days: 3,
+      description: "Every kiss is an invitation, soft and teasing, trailing down your partner’s delicate skin — igniting every nerve along the way, slowly building a delicious anticipation.",
+      actionType: "normal"
+    },
+    {
+      action: "Slow, teasing oral session focusing on every sensitive spot",
+      location: "Softly lit bedroom with silk sheets",
+      minutes: 30,
+      days: 2,
+      description: "Take your time exploring every inch with loving attention and breathless teasing, making your partner melt into pure pleasure and surrender.",
+      actionType: "id do anything for you"
+    },
+    {
+      action: "Enticing body-to-body grinding dance",
+      location: "Private lounge with velvet curtains and dim lighting",
+      minutes: 20,
+      days: 1,
+      description: "Close and personal, your bodies move as one, heat radiating with every motion, teasing and tantalizing with every step.",
+      actionType: "id do anything for you"
+    },
+    {
+      action: "Slow fingers tracing every curve, teasing endlessly",
+      location: "Silky hammock in a warm sunlit room",
+      minutes: 25,
+      days: 3,
+      description: "A delicate touch that promises so much more, exploring every contour and eliciting soft moans and sweet sighs.",
+      actionType: "id do anything for you"
+    },
+    {
+      action: "Soft bites and gentle nibbles in intimate areas",
+      location: "Candlelit dining room with plush cushions",
+      minutes: 15,
+      days: 2,
+      description: "Mixing pain and pleasure in perfect harmony, the light bites add sparks of fire to your intimate moments.",
+      actionType: "id do anything for you"
+    },
+    {
+      action: "Kissing and licking every inch of your partner’s body",
+      location: "Outdoor gazebo with soft drapes and twinkle lights",
+      minutes: 30,
+      days: 4,
+      description: "A journey of pleasure that takes your partner to new heights, one delicious lick at a time.",
+      actionType: "id do anything for you"
+    },
+    {
+      action: "Slowly undressing each other with tender kisses",
+      location: "Luxurious bedroom with rose petals",
+      minutes: 20,
+      days: 3,
+      description: "Every kiss as clothes fall away heightens the intimacy and desire between you.",
+      actionType: "id do anything for you"
+    },
+    {
+      action: "Soft, sensual hair pulling and neck kissing",
+      location: "Balcony with city lights and soft music",
+      minutes: 15,
+      days: 2,
+      description: "A perfect balance of control and tenderness, igniting passion through gentle yet firm touches.",
+      actionType: "id do anything for you"
+    },
+    {
+      action: "Gently tracing lips and tongue over sensitive skin",
+      location: "Hidden garden with fragrant flowers",
+      minutes: 20,
+      days: 2,
+      description: "The soft teasing sends shivers down your partner’s spine, awakening every nerve ending.",
+      actionType: "id do anything for you"
+    },
+    {
+      action: "Partners ecstasy, please your partner, no words",
+      location: "Fort",
+      minutes: 25,
+      days: 3,
+      description: "A moment frozen in time, where passion and love mix in the simplest yet most profound ways. Slowly explore your partner and discover what makes them moan, squirm and/or yell",
+      actionType: "id do anything for you"
+    },
+
+    // Additional normal rated actions:
+
+    {
+      action: "Cook a romantic dinner together",
+      location: "Home kitchen with candles and soft music",
+      minutes: 60,
+      days: 1,
+      description: "A fun and intimate experience to share, filled with laughter, delicious smells, and anticipation.",
+      actionType: "normal"
+    },
+    {
+      action: "Write love notes to each other",
+      location: "Cozy nook with comfy chairs",
+      minutes: 20,
+      days: 2,
+      description: "Express your feelings in heartfelt words and surprise your partner with sweet sentiments.",
+      actionType: "normal"
+    },
+    {
+      action: "Dance slowly to your favorite song",
+      location: "Living room with dim lights",
+      minutes: 15,
+      days: 1,
+      description: "Feel the rhythm and connection as you sway gently together, lost in your own world.",
+      actionType: "normal"
+    },
+    {
+      action: "Give each other relaxing foot massages",
+      location: "Candlelit room with soft pillows",
+      minutes: 20,
+      days: 3,
+      description: "Help each other unwind with soothing, tender foot rubs.",
+      actionType: "normal"
+    },
+    {
+      action: "Read romantic poetry aloud",
+      location: "By the fireplace",
+      minutes: 15,
+      days: 2,
+      description: "Share beautiful words and emotions, deepening your connection.",
+      actionType: "normal"
+    },
+    {
+      action: "Take a warm bubble bath together",
+      location: "Large bathtub with candles",
+      minutes: 30,
+      days: 1,
+      description: "Relax and enjoy each other’s company surrounded by warmth and bubbles.",
+      actionType: "normal"
+    },
+    {
+      action: "Play a couple’s question game",
+      location: "Cozy couch with blankets",
+      minutes: 20,
+      days: 2,
+      description: "Learn more about each other and have fun discovering new things.",
+      actionType: "normal"
+    },
+    {
+      action: "Give each other a gentle scalp massage",
+      location: "Comfortable bedroom",
+      minutes: 15,
+      days: 3,
+      description: "Light, loving touches help release tension and bring relaxation.",
+      actionType: "normal"
+    },
+    {
+      action: "Plan a future trip or dream getaway together",
+      location: "Kitchen table with coffee",
+      minutes: 25,
+      days: 1,
+      description: "Bond over exciting plans and shared dreams.",
+      actionType: "normal"
+    },
+    {
+      action: "Watch a romantic movie snuggled up",
+      location: "Couch with blankets and popcorn",
+      minutes: 120,
+      days: 1,
+      description: "Enjoy a cozy, intimate night in with your favorite film.",
+      actionType: "normal"
+    },
+
+    // Continuing from previous list, add these:
+
+    {
+      action: "Sensual scalp-to-toe feather tickling",
+      location: "Bedroom with soft curtains and low lighting",
+      minutes: 20,
+      days: 3,
+      description: "Let a feather trace every inch of skin from scalp to toes, teasing your senses and sparking gentle laughter and delicious shivers.",
+      actionType: "id do anything for you"
+    },
+    {
+      action: "Play dress up and seduce your partner",
+      location: "Bedroom with a mirror and dim lights",
+      minutes: 30,
+      days: 2,
+      description: "Choose enticing outfits and costumes to captivate your partner, mixing fantasy and desire in a playful dance of attraction.",
+      actionType: "normal"
+    },
+    {
+      action: "Share a slow, sensual bath with massage",
+      location: "Large tub with bubbles and rose petals",
+      minutes: 40,
+      days: 3,
+      description: "Relax together in warm water while exchanging slow, loving massages that awaken every nerve and build intimacy.",
+      actionType: "id do anything for you"
+    },
+    {
+      action: "Slow, teasing kiss trail from lips to collarbone",
+      location: "Fireplace nook with plush rugs",
+      minutes: 15,
+      days: 2,
+      description: "A soft cascade of kisses that awaken desire and invite your partner deeper into your embrace.",
+      actionType: "id do anything for you"
+    },
+    {
+      action: "Whisper sensual poetry into each other’s ear",
+      location: "Soft-lit bedroom with candles",
+      minutes: 15,
+      days: 2,
+      description: "Speak words dripping with desire and passion, creating a connection deeper than touch alone.",
+      actionType: "normal"
+    },
+    {
+      action: "Write love letters to each other and read aloud",
+      location: "Cozy corner with fairy lights",
+      minutes: 25,
+      days: 2,
+      description: "Share your heart through tender, intimate letters, strengthening your emotional bond.",
+      actionType: "normal"
+    },
+    {
+      action: "Give a slow, lingering neck and shoulder massage",
+      location: "Warm room with calming music",
+      minutes: 20,
+      days: 3,
+      description: "Melt away tension and build desire with gentle yet passionate touch.",
+      actionType: "id do anything for you"
+    },
+    {
+      action: "Lightly trace lips over your partner’s ears",
+      location: "Candlelit room with soft pillows",
+      minutes: 10,
+      days: 1,
+      description: "Soft kisses and breathy whispers on the ears send waves of shivers and delight.",
+      actionType: "normal"
+    },
+    {
+      action: "Make a secret sensual playlist for your partner",
+      location: "Any cozy spot with speakers",
+      minutes: 10,
+      days: 1,
+      description: "Craft the perfect soundtrack of songs that ignite passion and romance.",
+      actionType: "normal"
+    },
+    {
+      action: "Take turns giving compliments and telling fantasies",
+      location: "Comfortable living room",
+      minutes: 20,
+      days: 1,
+      description: "Build intimacy and excitement by sharing what you love and desire most.",
+      actionType: "normal"
+    },
+    {
+      action: "Slow, teasing kiss marathon focusing on lips and jawline",
+      location: "Dimly lit room with plush cushions",
+      minutes: 20,
+      days: 2,
+      description: "A deep, endless kiss session that ignites passion with every touch.",
+      actionType: "id do anything for you"
+    },
+    {
+      action: "Trace fingertips lightly over the back and sides",
+      location: "Warm bed with soft blankets",
+      minutes: 15,
+      days: 2,
+      description: "A feather-light touch that awakens every nerve, creating anticipation and pleasure.",
+      actionType: "normal"
+    },
+    {
+      action: "Play sensual guessing games with blindfolds",
+      location: "Bedroom with silk sheets",
+      minutes: 25,
+      days: 3,
+      description: "Heighten every sensation by removing sight and focusing on touch and taste.",
+      actionType: "normal"
+    },
+    {
+      action: "Dance cheek to cheek with slow music",
+      location: "Living room with fairy lights",
+      minutes: 10,
+      days: 1,
+      description: "Feel your hearts beat in sync as you sway softly and intimately together.",
+      actionType: "normal"
+    },
+    {
+      action: "Share a slow and sensual kiss",
+      location: "Dining room or bedroom",
+      minutes: 10,
+      days: 2,
+      description: "The flickering candlelight sets the mood as your lips meet in slow, soft kisses.",
+      actionType: "normal"
+    },
+    {
+      action: "Write your partner’s name on their skin with your lips",
+      location: "Softly lit room",
+      minutes: 15,
+      days: 3,
+      description: "A tender, playful way to show affection and spark desire.",
+      actionType: "normal"
+    },
+    {
+      action: "Make eye contact while slowly tracing your lovers private parts",
+      location: "Quiet, comfortable spot",
+      minutes: 15,
+      days: 2,
+      description: "Deep connection through touch and gaze, intensifying desire.",
+      actionType: "id do anything for you"
+    },
+    {
+      action: "Light teasing with fingers while breathing on sensitive spots, don't let your mouth make contact until the very end!",
+      location: "Bedroom with soft sheets",
+      minutes: 20,
+      days: 2,
+      description: "A delicious mix of anticipation and excitement through gentle touch and warm breath.",
+      actionType: "id do anything for you"
+    },
+    {
+      action: "Read aloud romantic or erotic fiction to your partner",
+      location: "Comfy armchair with soft lighting",
+      minutes: 30,
+      days: 1,
+      description: "Let your voices bring stories to life and inspire desire.",
+      actionType: "normal"
+    }
+
+    // Add more actions as needed with actionType = "normal" or "id do anything for you"
+
+  ];
+
+    // Set random days 1-5 for variety if needed (optional)
+    actions.forEach(item => {
+      if(!item.days) item.days = Math.floor(Math.random() * 5) + 1;
+    });
+
+    const loserSelect = document.getElementById('loser');
+    const filterSelect = document.getElementById('filterActions');
+    const randomizeBtn = document.getElementById('randomizeBtn');
+    const resultDiv = document.getElementById('result');
+    const doerReceiver = document.getElementById('doerReceiver');
+    const actionText = document.getElementById('actionText');
+    const locationText = document.getElementById('locationText');
+    const durationText = document.getElementById('durationText');
+    const daysText = document.getElementById('daysText');
+    const descriptionBox = document.getElementById('descriptionBox');
+    const gifContainer = document.getElementById('gifContainer');
+    const gifImage = document.getElementById('gifImage');
+
+    const gifUrls = [
+  "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExN3h2djRwaXE2OTJnOXU4OWJmODZjZWp5MGo5cDRtMzkwaXk4NDZwdyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/jv2NrCzvwqPh6/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExd2FpNDY0dXAzdGhsMng4d2VobXd4cDJvd3JhaWZ5YXc2djRlNjQ5aCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/eKI5xR5DODFPW/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3dGw3ZDNnZmdxNHFvbGIxcjR2MzVvbnpwaDJtZWo5ajh0eTdqeGxwZiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/7vdZWm9lL82ru/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3cDI5dDhmYmZsbjB3aTd6NjRlNzRhdjA4NGEweTB5bWx3OGJvejNnMyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/gCtxJOIU2WZEc/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbWR3Z21vNjBod2JvdGFmazl3aG5xN2xwc3Q1b2Nta3pwMXJ1N2J2YyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/1UX4A4e47m3hDkpGtJ/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbWR3Z21vNjBod2JvdGFmazl3aG5xN2xwc3Q1b2Nta3pwMXJ1N2J2YyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/l0ErEXpCoUcS15UNq/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3N2Uyczdrbjg4aXE4d3B1amxzc2loMTJyYWt5ZGEyYnF3MXk4bWl0cyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/l3vR1MulQY6wB3WP6/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3cWdjaGl4dWF3ZG9uYTQwODdnemUwcndtODNnb2dubTF2YmI0MGlhbiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/4H28yacGCjrkQ/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3bzM3a2puMGphZTZtYThyenJ1cnJtdng5eGpiaDdicmV4NGZhb2tqMyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3oEduSbSGpGaRX2Vri/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3b3J1bjQxOGhlMm1zdXVlY2x3N2RpdDdweGV2dGQ2ZWtpMWR4czJ4cyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/x90dwDUuUx9Ys/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbDB3OTYxNHMxM2E1cHlrZnd1dGZlODF4cTZ5ZnB6ZHJoZHU5Y3V4NyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/XN8pBJ6HrLTOM/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3ajd5aW4yN254NGsybGdtdGxrNWF5bWpnYzl2d3NwczdyN3l0MjAzMyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/FpJUpBuMw2Qdq/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3d3ViYmRvYzUxeDI4N3hlZXczbWM2dHB4YjRpb2p6OXpqcW1pczJ0OSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/I7IjYLopCznsQ/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3NnE2bTFzbDNvc3kxOHB3OTd2ZHB3bGhxbHRsb2kwYmxmZXdvdW04dCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/5Xl77FI8iZWi4/giphy.gif"
+];
+
+
+    randomizeBtn.addEventListener('click', () => {
+      if (!loserSelect.value) {
+        alert('Please select who lost the bet.');
+        return;
+      }
+
+      // Filter actions by filter select:
+      let filteredActions = [];
+      const filterVal = filterSelect.value;
+
+      if (filterVal === 'both') {
+        // My love is fearless → both types
+        filteredActions = actions.filter(a => a.actionType === "normal" || a.actionType === "id do anything for you");
+      } else if (filterVal === 'normal') {
+        filteredActions = actions.filter(a => a.actionType === "normal");
+      } else if (filterVal === 'xda') {
+        filteredActions = actions.filter(a => a.actionType === "id do anything for you");
+      }
+
+      if (filteredActions.length === 0) {
+        alert("No actions available for the selected filter.");
+        return;
+      }
+
+      // Pick random action from filtered list
+      const randomAction = filteredActions[Math.floor(Math.random() * filteredActions.length)];
+      const randomGif = gifUrls[Math.floor(Math.random() * gifUrls.length)];
+
+      // Set who does and who receives
+      const doer = loserSelect.value === 'husbands' ? 'Husbands' : 'Wives';
+      const receiver = loserSelect.value === 'husbands' ? 'Wives' : 'Husbands';
+
+      doerReceiver.textContent = `${doer} will do for ${receiver}`;
+      actionText.textContent = randomAction.action;
+      locationText.textContent = randomAction.location;
+      durationText.textContent = randomAction.minutes;
+      daysText.textContent = randomAction.days;
+      descriptionBox.textContent = randomAction.description;
+
+      gifImage.src = randomGif;
+      gifContainer.style.display = 'block';
+      resultDiv.style.display = 'block';
+
+      // Heart burst animation on button click
+      createHeartFloat(randomizeBtn);
+	
+	//floating hearts
+(function() {
+  const container = document.getElementById('floating-effects');
+  const maxParticles = 30; // Number of hearts + sparkles on screen
+  const particles = [];
+
+  function createParticle() {
+    const particle = document.createElement('div');
+    particle.classList.add('floating-particle');
+
+    // Randomly assign heart or sparkle
+    if (Math.random() < 0.5) {
+      particle.classList.add('heart');
+    } else {
+      particle.classList.add('sparkle');
+    }
+
+    // Random starting horizontal position
+    particle.style.left = Math.random() * 100 + 'vw';
+    // Start near bottom (just off screen)
+    particle.style.top = '100vh';
+
+    // Random animation duration for variety
+    const duration = 4000 + Math.random() * 4000;
+    particle.style.animationDuration = duration + 'ms';
+
+    container.appendChild(particle);
+
+    // Remove particle after animation ends
+    particle.addEventListener('animationend', () => {
+      container.removeChild(particle);
+      particles.splice(particles.indexOf(particle), 1);
+    });
+
+    particles.push(particle);
+  }
+
+  // Create particles continuously but capped at maxParticles
+  setInterval(() => {
+    if (particles.length < maxParticles) {
+      createParticle();
+    }
+  }, 300);
+})();
+
+
+      // Bounce animation
+      randomizeBtn.classList.remove('bounce');
+      void randomizeBtn.offsetWidth; // trigger reflow
+      randomizeBtn.classList.add('bounce');
+    });
+
+    function createHeartFloat(button) {
+      const heart = document.createElement('span');
+      heart.className = 'heart-float';
+      heart.textContent = '❤️';
+      const rect = button.getBoundingClientRect();
+      heart.style.left = (rect.left + rect.width / 2) + 'px';
+      heart.style.top = (rect.top - 10) + 'px';
+      document.body.appendChild(heart);
+
+      let animationEnd = false;
+      heart.animate([
+        { transform: 'translateY(0) scale(1)', opacity: 0.8 },
+        { transform: 'translateY(-60px) scale(1.2)', opacity: 0 }
+      ], {
+        duration: 1500,
+        easing: 'ease-in-out',
+        fill: 'forwards'
+      }).onfinish = () => {
+        if (!animationEnd) {
+          animationEnd = true;
+          heart.remove();
+        }
+      };
+    }
+  </script>
+
+<div id="floating-effects"></div>
+
+
+
+
+</body>
+</html>
